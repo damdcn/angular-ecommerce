@@ -1,0 +1,6 @@
+[
+    { "email" : "admin", "panier" : [] },
+    { "email" : "claire.delune@mailserver.fr", "panier" : [] },
+    { "email" : "jessica.nett@mailserver.fr", "panier" : [] },
+    { "email" : "alexis.sonsuper@mailserver.fr", "panier" : [] }
+]

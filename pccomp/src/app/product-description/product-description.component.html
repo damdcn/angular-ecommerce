@@ -1,0 +1,23 @@
+<div class="card mb-4 box-shadow" *ngFor="let productItem of productItem">
+  <div class="div-fit-img">
+    <img [src]="productItem.image"  class="bd-placeholder-img card-img-top">
+  </div>
+  <div class="card-body">
+    <h1>{{productItem.price| currency: 'EUR'}}</h1>
+    <h2 class="card-text">{{productItem.name}}</h2>
+    <hr>
+    <div class="">
+      <p class="card-text" >
+        <strong>Description</strong>
+      </p>
+      <p class="card-text">{{productItem.description}}</p>
+      <hr>
+      <strong>Fabricant</strong>
+      <p class="card-text">{{productItem.manufacturer}}</p>
+      <hr>
+      <strong>Référence</strong>
+      <p class="card-text">{{productItem.model}}</p>
+    </div>
+  </div>
+</div>
+  
