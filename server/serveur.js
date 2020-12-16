@@ -34,7 +34,7 @@ MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (e
         console.log("/produits/search  " + req.params.filtervalue);
         let item = req.params.filtervalue;
         try {
-            db.collection("produits").find({ "name": { $regex: '.*' + item + '*.' } }).toArray((err, documents) => {
+            db.collection("produits").find({ $or: [{ "name": { $regex: '.' + item + '.' } }, { "type": { $regex: '.' + item + '.' } }] }).toArray((err, documents) => {
                 res.end(JSON.stringify(documents));
             });
         } catch (e) {
@@ -124,7 +124,7 @@ MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (e
         console.log("/cart/clear de " + JSON.stringify(req.body.user));
         user = req.body.user;
         try {
-            db.collection("panier").updateOne({"email": user}, {"$set": {"panier": []}})
+            db.collection("panier").updateOne({ "email": user }, { "$set": { "panier": [] } })
             res.end(JSON.stringify(
                 {
                     "message": "clear de panier effectué"
@@ -136,17 +136,17 @@ MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (e
         }
     });
 
-    app.get("/categories", (req,res) => {
+    app.get("/categories", (req, res) => {
         console.log("/categories");
         categories = [];
         try {
             db.collection("produits").find().toArray((err, documents) => {
-            for (let doc of documents) {
-                if (!categories.includes(doc.type)) categories.push(doc.type); 
-            }
-            res.end(JSON.stringify(categories));
+                for (let doc of documents) {
+                    if (!categories.includes(doc.type)) categories.push(doc.type);
+                }
+                res.end(JSON.stringify(categories));
             });
-        } catch(e) {
+        } catch (e) {
             console.log("Erreur sur /categories : " + e);
             res.end(JSON.stringify([]));
         }
@@ -187,7 +187,7 @@ MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (e
     /* Inscription */
     app.post("/membre/inscription", (req, res) => {
         user = req.body;
-        console.log("/inscription de "+user.email)
+        console.log("/inscription de " + user.email)
         try {
             db.collection("membres").insertOne(user);
             db.collection("panier").insertOne({ "email": user.email, "panier": [] });
