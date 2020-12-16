@@ -136,6 +136,22 @@ MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (e
         }
     });
 
+    app.get("/categories", (req,res) => {
+        console.log("/categories");
+        categories = [];
+        try {
+            db.collection("produits").find().toArray((err, documents) => {
+            for (let doc of documents) {
+                if (!categories.includes(doc.type)) categories.push(doc.type); 
+            }
+            res.end(JSON.stringify(categories));
+            });
+        } catch(e) {
+            console.log("Erreur sur /categories : " + e);
+            res.end(JSON.stringify([]));
+        }
+    });
+
     /* Connexion */
     app.post("/membre/connexion", (req, res) => {
         try {

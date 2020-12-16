@@ -21,7 +21,7 @@ export class AuthentificationService {
 
   //public user:Subject<string> = new BehaviorSubject<string>("");
   public user: string = "";
-  public baseURL: string = "http://192.168.0.34:8889/";
+  public baseURL: string = "http://localhost:8889/";
   public token: any;
   public tokenTimer: any;
   public isAuthenticated = false;

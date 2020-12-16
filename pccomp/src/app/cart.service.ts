@@ -18,7 +18,7 @@ export class CartService {
   }
 
    getCartItems(): Observable<any> {
-    return this.http.get<any>("http://192.168.0.34:8889/cart/"+this.user).pipe(
+    return this.http.get<any>("http://localhost:8889/cart/"+this.user).pipe(
       map((result) => {
         let cartItems: any[] = [];
 
@@ -46,17 +46,17 @@ export class CartService {
 
   addProductToCart(product: any): Observable<any> {
     let user = this.user;
-    return this.http.post("http://192.168.0.34:8889/cart", {user, product});
+    return this.http.post("http://localhost:8889/cart", {user, product});
   }
 
   clearCart(): Observable<any> {
     let user = this.user;
-    return this.http.post("http://192.168.0.34:8889/cart/clear", {user});
+    return this.http.post("http://localhost:8889/cart/clear", {user});
   }
 
   removeProductFromCart(product:any): Observable<any> {
     let user = this.user;
-    return this.http.post("http://192.168.0.34:8889/cart/remove", {user, product});
+    return this.http.post("http://localhost:8889/cart/remove", {user, product});
     
   }
   
