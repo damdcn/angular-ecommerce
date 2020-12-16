@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { AuthentificationService } from 'src/app/authentification.service';
 
 @Component({
@@ -9,22 +9,16 @@ import { AuthentificationService } from 'src/app/authentification.service';
 })
 export class HeaderComponent implements OnInit {
 
-  public user: string;
+  public user: string = "";
   public isAuthenticated: boolean = false;
-  private authListenerSubs = new Subscription();
   
 
   constructor(private authService: AuthentificationService) {
-    this.user = this.authService.getUser();
   }
 
   ngOnInit(): void {
-    this.user = this.authService.getUser();
-    this.isAuthenticated = this.authService.isAuthenticated;
-    this.authListenerSubs = this.authService.getAuthStatusListener()
-    .subscribe(isAuthenticated => {
-      this.isAuthenticated = isAuthenticated;
-    });
+    this.authService.cast.subscribe(user => this.user = user);
+    this.authService.cast2.subscribe(isAuthenticated => this.isAuthenticated = isAuthenticated);
   }
 
 }

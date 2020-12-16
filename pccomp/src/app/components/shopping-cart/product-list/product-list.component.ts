@@ -17,7 +17,7 @@ export class ProductListComponent implements OnInit {
     this.msg.getMsg().subscribe((filter: any) => {
       filtre = filter;
       this.loadProducts(filter);
-    })
+    });
     if (filtre == "") { this.loadProducts("") }
 
 
@@ -26,6 +26,6 @@ export class ProductListComponent implements OnInit {
   loadProducts(filter: any) {
     this.produitsService.getProductsBySearch(filter).subscribe((products: any) => {
       this.productList = products;
-    })
+    });
   }
 }

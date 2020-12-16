@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, Subscription } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { AuthentificationService } from './authentification.service';
@@ -9,12 +9,12 @@ import { AuthentificationService } from './authentification.service';
 })
 export class CartService {
 
-  private authListenerSubs = new Subscription();
-  public user: string;
+  public user: string = "";
   public isAuthenticated: boolean = false;
  
-  constructor(private http: HttpClient, private authService: AuthentificationService) {
-    this.user = this.authService.getUser();
+  constructor(private http: HttpClient, private authService: AuthentificationService) { 
+    this.authService.cast.subscribe(user => this.user = user);
+    this.authService.cast2.subscribe(isAuthenticated => this.isAuthenticated = isAuthenticated);
   }
 
    getCartItems(): Observable<any> {

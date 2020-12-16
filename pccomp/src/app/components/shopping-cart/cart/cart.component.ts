@@ -3,7 +3,7 @@ import { MessengerService } from 'src/app/messenger.service'
 import { CartService } from 'src/app/cart.service';
 import { Router } from '@angular/router';
 import { AuthentificationService } from 'src/app/authentification.service';
-import { Subscription } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
 @Component({
   selector: 'app-cart',
   templateUrl: './cart.component.html',
@@ -14,8 +14,7 @@ export class CartComponent implements OnInit {
   
   cartItems:any[]= [];
   cartTotal = 0
-  private authListenerSubs = new Subscription();
-  public user: string;
+  public user: string = "";
   public isAuthenticated: boolean = false;
 
   constructor(
@@ -24,19 +23,15 @@ export class CartComponent implements OnInit {
     public router:Router,
     private authService: AuthentificationService
   ) {
-    this.user = this.authService.getUser();
   }
 
   ngOnInit() {
-    if(this.user != "") {
+    this.authService.cast.subscribe(user => this.user = user);
+    this.authService.cast2.subscribe(isAuthenticated => this.isAuthenticated = isAuthenticated);
+    if(this.isAuthenticated) {
       this.handleSubscription();
       this.loadCartItems();
     } 
-    this.isAuthenticated = this.authService.isAuthenticated;
-    this.authListenerSubs = this.authService.getAuthStatusListener()
-    .subscribe(isAuthenticated => {
-      this.isAuthenticated = isAuthenticated;
-    });
   }
 
   handleSubscription() {

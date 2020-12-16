@@ -1,28 +1,28 @@
 <div class="container-fluid" *ngIf="cartItems.length ===0" class="alert alert-info">Le panier est vide</div>
-<div  *ngIf="cartItems.length >0  && router.url != '/payment'" class="container-fluid">
-<ul  class="list-group">
-    <li class="list-group-item" *ngFor ="let item of cartItems">
-        <app-cart-item [cartItem]= "item"></app-cart-item>
-    </li>
+<div *ngIf="cartItems.length >0  && router.url != '/payment' && isAuthenticated" class="container-fluid">
+    <ul class="list-group">
+        <li class="list-group-item" *ngFor="let item of cartItems">
+            <app-cart-item [cartItem]="item"></app-cart-item>
+        </li>
 
-    <li class="list-group-item active">
-        <strong>Total </strong>{{cartTotal | currency:'EUR'}}
-    </li>
-    <button class="btn btn-outline-primary"[routerLink]="['/payment']">Aller au paiement</button>
-</ul>
+        <li class="list-group-item active">
+            <strong>Total </strong>{{cartTotal | currency:'EUR'}}
+        </li>
+        <button class="btn btn-outline-primary" [routerLink]="['/payment']">Aller au paiement</button>
+    </ul>
 </div>
-<div  *ngIf="cartItems.length >0  && router.url === '/payment'" class="container-fluid">
+<div *ngIf="cartItems.length >0  && router.url === '/payment'" class="container-fluid">
     <h1>Votre panier</h1>
     <br>
     <br>
-    <ul  class="list-group">
-        <li class="list-group-item" *ngFor ="let item of cartItems">
-            <app-cart-item [cartItem]= "item"></app-cart-item>
+    <ul class="list-group">
+        <li class="list-group-item" *ngFor="let item of cartItems">
+            <app-cart-item [cartItem]="item"></app-cart-item>
         </li>
-    
+
         <li class="list-group-item active">
             <strong>Total </strong>{{cartTotal | currency:'EUR'}}
         </li>
         <button class="btn btn-outline-primary" (click)="payer()">Payer</button>
     </ul>
-    </div>
+</div>

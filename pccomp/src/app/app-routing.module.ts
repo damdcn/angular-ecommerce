@@ -11,10 +11,10 @@ import { ShoppingCartComponent } from './components/shopping-cart/shopping-cart.
 import { ProductDescriptionComponent } from './product-description/product-description.component';
 
 const routes: Routes = [
-{path: '', redirectTo: '/shop',pathMatch:'full'},
+//{path: '', redirectTo: '/shop',pathMatch:'full'},
 {path: 'login',component : LoginComponent},
 {path: 'register',component : RegisterComponent},
-{path: 'shop',component : ShoppingCartComponent},
+{path: '',component : ShoppingCartComponent},
 {path: 'payment', component : CartComponent},
 {path: 'description/:item', component: ProductDescriptionComponent}
 

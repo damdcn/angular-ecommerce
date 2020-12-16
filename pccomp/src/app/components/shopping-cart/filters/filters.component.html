@@ -1,8 +1,10 @@
 <div class="card filters">
     <div class="card-header">
-        <strong>Categories</strong>
-        <ul *ngFor="let p of catList">
-            <li>{{p}}</li>
+        <strong>Categories :</strong>
+        <hr>
+        <ul>
+            <li><a (click)="setCategory('')">Tout</a></li>
+            <li *ngFor="let p of catList"><a (click)="setCategory(p)">{{p}}</a></li>
         </ul>
 
     </div>

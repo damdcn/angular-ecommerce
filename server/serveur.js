@@ -3,7 +3,8 @@ const app = express();
 const jwt = require("jsonwebtoken");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// Gestion des CORS
+
+
 app.use(function (req, res, next) {
     res.setHeader('Content-type', 'application/json');
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -11,7 +12,8 @@ app.use(function (req, res, next) {
     res.setHeader('Access-Control-Allow-Headers', '*');
     next();
 });
-//app.use(require("cors")); // (méthode alternative de gestion des CORS)
+
+
 const MongoClient = require('mongodb').MongoClient;
 const ObjectID = require('mongodb').ObjectId;
 const url = "mongodb://localhost:27017";
@@ -34,7 +36,7 @@ MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (e
         console.log("/produits/search  " + req.params.filtervalue);
         let item = req.params.filtervalue;
         try {
-            db.collection("produits").find( { $or: [ { "name": { $regex: '.*' + item + '*.' }  }, { "type":{ $regex: '.*' + item + '*.' } } ] }).toArray((err, documents) => {
+            db.collection("produits").find( { $or: [ { "name": { $regex: new RegExp('.*' + item + '*.', "i") }  }, { "type":{ $regex: new RegExp('.*' + item + '*.', "i") } } ] }).collation( { locale: 'fr', strength: 1 } ).toArray((err, documents) => {
                 res.end(JSON.stringify(documents));
             });
         } catch (e) {
@@ -70,13 +72,19 @@ MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (e
     });
 
     app.post("/cart", (req, res) => {
-        console.log("/cart avec " + JSON.stringify(req.body));
         item = req.body;
         try {
             //ajoute un element si n'existe pas et incremente la quantité si existe
             if (req.body.product.nom != undefined) {
-                db.collection("panier").updateOne({ "email": item.user }, { $push: { "panier": { "nom": item.product.nom, "qty": 1, "prix": parseInt(item.product.price) } } });
-                //db.collection("panier").insertOne({ "nom": req.body.product.nom, "qty": 1, "prix": parseInt(req.body.product.prix) });
+                console.log("/cart avec " + JSON.stringify(req.body.product.nom));
+                db.collection("panier").find( { $and: [ { "email": item.user }, { "panier.nom": req.body.product.nom } ] } ).toArray((err, documents) => {
+                    count = documents.length;
+                    if(count==0){
+                        db.collection("panier").updateOne({ "email": item.user }, { $push: { "panier": { "nom": item.product.nom, "qty": 1, "prix": parseInt(item.product.price) } } });
+                    } else {
+                        db.collection("panier").updateOne({ $and: [ { "email": item.user }, { "panier.nom": req.body.product.nom } ] }, { $inc : { "panier.$.qty" : 1 } });
+                    }
+                });
                 res.end(JSON.stringify(
                     {
                         "nom": item.nom,
@@ -84,10 +92,16 @@ MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (e
                         "message": "ajout de produit effectué"
                     }));
 
-            }
-            else {
-                db.collection("panier").updateOne({ "email": item.user }, { $push: { "panier": { "nom": item.product.name, "qty": 1, "prix": parseInt(item.product.price) } } });
-                //db.collection("panier").insertOne({ "nom": req.body.product.name, "qty": 1, "prix": parseInt(req.body.product.price) });
+            } else {
+                console.log("/cart avec " + JSON.stringify(req.body.product.name));
+                db.collection("panier").find( { $and: [ { "email": item.user }, { "panier.nom": req.body.product.name } ] } ).toArray((err, documents) => {
+                    count = documents.length;
+                    if(count==0){
+                        db.collection("panier").updateOne({ "email": item.user }, { $push: { "panier": { "nom": item.product.name, "qty": 1, "prix": parseInt(item.product.price) } } });
+                    } else {
+                        db.collection("panier").updateOne({ $and: [ { "email": item.user }, { "panier.nom": req.body.product.name } ] }, { $inc : { "panier.$.qty" : 1 } });
+                    }
+                });
                 res.end(JSON.stringify(
                     {
                         "nom": item.product.name,
@@ -101,12 +115,27 @@ MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (e
         }
 
     });
+
     app.post("/cart/remove", (req, res) => {
         console.log("/cart/remove avec " + JSON.stringify(req.body));
-        item = req.body;
+        const item = req.body;
         try {
-            db.collection("panier").deleteOne({ "email": item.user }, { $pull: { "panier": { "nom": item.product.nom, "qty": 1, "prix": parseInt(item.product.price) } } });
-            //db.collection("panier").deleteOne({ "nom": req.body.product.nom, "qty": 1, "prix": parseInt(req.body.product.prix) });
+            db.collection("panier").find( { $and: [ { "email": item.user }, { "panier.nom": req.body.product.nom } ] } ).toArray((err, documents) => {
+                panier  = documents[0].panier
+                let count=0;
+                for(i=0;i<panier.length;i++){
+                    if(panier[i].nom==item.product.nom){
+                        console.log("article : "+item.product.nom+"  =  "+item.product.qty);
+                        count = item.product.qty;
+                    }
+                }
+                if(count==0){
+                    db.collection("panier").updateOne({ "email": item.user }, { $pull: { "panier" : { "nom": item.product.nom } } });
+                } else {
+                    db.collection("panier").updateOne({ $and: [ { "email": item.user }, { "panier.nom": req.body.product.nom } ] }, { $inc : { "panier.$.qty" : -1 } });
+                }
+            });
+
             res.end(JSON.stringify(
                 {
                     "nom": item.nom,
@@ -159,13 +188,11 @@ MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (e
                 .find(req.body)
                 .toArray((err, documents) => {
                     if (documents != undefined && documents.length == 1) {
-                        //res.end(JSON.stringify({"resultat": 1, "message": "Authentification réussie"}));
+
                         const payload = {
                             email: req.body.email,
                             password: req.body.password
-                        }; // Create JWT Payload
-
-                        // Sign Token
+                        };
                         jwt.sign(
                             payload,
                             'SECRET-KEY',
@@ -184,6 +211,7 @@ MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (e
             res.end(JSON.stringify({ "resultat": 0, "message": e }));
         }
     });
+
     /* Inscription */
     app.post("/membre/inscription", (req, res) => {
         user = req.body;

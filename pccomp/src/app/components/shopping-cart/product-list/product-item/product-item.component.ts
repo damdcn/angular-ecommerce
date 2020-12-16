@@ -12,7 +12,6 @@ import { ProductDescriptionComponent } from 'src/app/product-description/product
 })
 export class ProductItemComponent implements OnInit {
 
-  private authListenerSubs = new Subscription();
   public isAuthenticated: boolean = false;
 
   @Input() productItem:any;
@@ -23,11 +22,7 @@ export class ProductItemComponent implements OnInit {
     private router: Router) { 
   }
   ngOnInit() {
-    this.isAuthenticated = this.authService.isAuthenticated;
-    this.authListenerSubs = this.authService.getAuthStatusListener()
-    .subscribe(isAuthenticated => {
-      this.isAuthenticated = isAuthenticated;
-    });
+    this.authService.cast2.subscribe(isAuthenticated => this.isAuthenticated = isAuthenticated);
   }
   
   handleAddToCart() {

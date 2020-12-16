@@ -22,9 +22,9 @@ export class LoginComponent {
       const ans = reponse;
       if(reponse.token){
         this.authService.connect(this.utilisateur.email, ans);
-        this.router.navigate(['/shop']);
+        this.router.navigate(['/']);
       }
-      setTimeout( () => { this.router.navigate(['/shop']); }, 1000 );
+      setTimeout( () => { this.router.navigate(['/']); }, 1000 );
     });
   }
 }

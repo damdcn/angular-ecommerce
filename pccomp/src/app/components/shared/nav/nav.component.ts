@@ -5,7 +5,7 @@ import { ProductListComponent } from '../../shopping-cart/product-list/product-l
 
 import { AuthentificationService } from '../../../authentification.service';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-nav',
@@ -15,25 +15,19 @@ import { Subscription } from 'rxjs';
 export class NavComponent implements OnInit {
 
   name:any="";
-  private authListenerSubs = new Subscription();
-  public user: string;
+  public user: string ="";
   public isAuthenticated: boolean = false;
 
   constructor(private produitsService : ProduitsService,
     private msg:MessengerService,
     private route: ActivatedRoute,
-    private router:Router,
-    private authService: AuthentificationService) {
-      this.user = this.authService.getUser();
-    }
+    public router:Router,
+    private authService: AuthentificationService) { }
   
   ngOnInit(): void {
-    this.router.navigate(['/shop']);
-    this.isAuthenticated = this.authService.isAuthenticated;
-    this.authListenerSubs = this.authService.getAuthStatusListener()
-    .subscribe(isAuthenticated => {
-      this.isAuthenticated = isAuthenticated;
-    });
+    this.router.navigate(['/']);
+    this.authService.cast2.subscribe(isAuthenticated => this.isAuthenticated = isAuthenticated);
+    this.authService.cast.subscribe(user => this.user = user);
   }
 
   applyFilter(){
@@ -42,6 +36,6 @@ export class NavComponent implements OnInit {
 
   deconnexion(){
     this.authService.disconnect();
-    this.router.navigate(['/shop']);
+    this.router.navigate(['/']);
   }
 }

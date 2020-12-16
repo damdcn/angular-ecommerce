@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { MessengerService } from 'src/app/messenger.service';
 import { ProduitsService } from 'src/app/produits-service.service';
 
 @Component({
@@ -8,7 +9,7 @@ import { ProduitsService } from 'src/app/produits-service.service';
 })
 export class FiltersComponent implements OnInit {
   catList: any;
-  constructor(private produitsService: ProduitsService) { }
+  constructor(private produitsService: ProduitsService ,private msg:MessengerService) { }
 
   ngOnInit(): void {
     this.loadCategory();
@@ -17,7 +18,10 @@ export class FiltersComponent implements OnInit {
   loadCategory() {
     this.produitsService.getCategory().subscribe((products: any) => {
       this.catList = products;
-      console.log(this.catList);
-    })
+    });
+  }
+
+  setCategory(cat: any) {
+    this.msg.sendMsg(cat);
   }
 }

@@ -27,11 +27,11 @@
         <a class="nav-link disabled" href="#">Disabled</a>
       </li> -->
     </ul>
-    <form class="form-inline my-2 my-lg-0">
-      <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search"  [(ngModel)]="name" [ngModelOptions]="{standalone: true}" (input)="applyFilter()">
+    <div class="form-inline my-2 my-lg-0">
+      <input *ngIf="!router.url.includes('/description') && router.url != '/login' && router.url != '/register' && router.url != '/payment'" class="form-control mr-sm-2" type="search" placeholder="Rechercher" aria-label="Search"  [(ngModel)]="name" [ngModelOptions]="{standalone: true}" (input)="applyFilter()">
       <button *ngIf="!isAuthenticated" class="btn btn-outline-primary"[routerLink]="['/login']">Se connecter</button>
       <button *ngIf="!isAuthenticated" class="ml-2 btn btn-outline-secondary "[routerLink]="['/register']">S'inscrire</button>
       <button *ngIf="isAuthenticated" class="btn btn-outline-primary" (click)="deconnexion()">Se déconnecter</button>
-    </form>
+    </div>
   </div>
 </nav>

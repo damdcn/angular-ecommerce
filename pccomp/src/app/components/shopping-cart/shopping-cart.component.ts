@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
 import { AuthentificationService } from 'src/app/authentification.service';
 
 @Component({
@@ -9,20 +9,15 @@ import { AuthentificationService } from 'src/app/authentification.service';
 })
 export class ShoppingCartComponent implements OnInit {
 
-  private authListenerSubs = new Subscription();
-  public user: string;
+  public user: string = "";
   public isAuthenticated: boolean = false;
 
   constructor(private authService: AuthentificationService) {
-    this.user = this.authService.getUser();
   }
 
   ngOnInit(): void {
-    this.isAuthenticated = this.authService.isAuthenticated;
-    this.authListenerSubs = this.authService.getAuthStatusListener()
-    .subscribe(isAuthenticated => {
-      this.isAuthenticated = isAuthenticated;
-    });
+    this.authService.cast.subscribe(user => this.user = user);
+    this.authService.cast2.subscribe(isAuthenticated => this.isAuthenticated = isAuthenticated);
   }
 
 

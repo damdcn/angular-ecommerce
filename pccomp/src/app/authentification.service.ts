@@ -20,20 +20,20 @@ const httpOptions = {
 export class AuthentificationService {
 
   //public user:Subject<string> = new BehaviorSubject<string>("");
-  public user: string = "";
+  public user:Subject<string> = new BehaviorSubject<string>("")
+  public cast = this.user.asObservable();
   public baseURL: string = "http://localhost:8889/";
   public token: any;
   public tokenTimer: any;
-  public isAuthenticated = false;
-  private authStatusListener = new Subject<boolean>();
+  public isAuthenticated:Subject<boolean> = new BehaviorSubject<boolean>(false);
+  public cast2 = this.isAuthenticated.asObservable();
 
   constructor(private http: HttpClient, private router: Router) {
     let token = localStorage.getItem('token');
     if(token){
       let payload = this.parseJwt(token);
-      this.user = payload.email;
-      this.authStatusListener.next(true);
-      this.isAuthenticated = true;
+      this.user.next(payload.email);
+      this.isAuthenticated.next(true);
       const now = new Date();
       const expirationDate = new Date(payload.exp * 1000);
       const expiresInDuration = Math.abs(expirationDate.getTime() - now.getTime()) / 1000;
@@ -48,9 +48,8 @@ export class AuthentificationService {
 
   connect(data: string, reponse: any) {
     this.token = reponse.token;
-    this.user = data;
-    this.authStatusListener.next(true);
-    this.isAuthenticated = true;
+    this.user.next(data);
+    this.isAuthenticated.next(true);
     const expiresInDuration = reponse.expiresIn;
     this.setAuthTimer(expiresInDuration);
     const now = new Date();
@@ -60,9 +59,8 @@ export class AuthentificationService {
 
   disconnect() {
     this.token = null;
-    this.isAuthenticated = false;
-    this.user = "";
-    this.authStatusListener.next(false);
+    this.user.next("");
+    this.isAuthenticated.next(false);
     clearTimeout(this.tokenTimer);
     this.clearAuthData();
     this.router.navigate(['/']);
@@ -84,8 +82,7 @@ export class AuthentificationService {
 
     if (expiresIn > 0) {
       this.token = authInfos.token;
-      this.isAuthenticated = true;
-      this.authStatusListener.next(true);
+      this.isAuthenticated.next(true);
       this.setAuthTimer(expiresIn / 1000);
       //this.user.next(this.user);
     }
@@ -119,10 +116,6 @@ export class AuthentificationService {
     this.tokenTimer = setTimeout(() => {
       this.disconnect();
     }, duration * 1000);
-  }
-
-  getAuthStatusListener() {
-    return this.authStatusListener.asObservable();
   }
 
   parseJwt(token: any) {
